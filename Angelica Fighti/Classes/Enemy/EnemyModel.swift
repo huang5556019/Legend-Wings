@@ -13,7 +13,7 @@ import SpriteKit
 class EnemyModel: NSObject{
     
     deinit{
-        print("Enemy Class Deinitiated")
+        print("EnemyModel Class Deinitiated")
     }
     
     enum EnemyType: String{
@@ -86,12 +86,12 @@ class EnemyModel: NSObject{
         // Increase HP & Speed
         switch enemyType {
         case .Regular:
-            RegularBaseHP += 50
-            velocity.dy -= 25
-        case .Boss:
-            BossBaseHP += 500
-        case .Fireball:
+            RegularBaseHP += 100
             velocity.dy -= 50
+        case .Boss:
+            BossBaseHP += 1500
+        case .Fireball:
+            velocity.dy -= 250
         default:
             print("No increase for \(enemyType.rawValue)")
         }
@@ -103,6 +103,10 @@ class EnemyModel: NSObject{
         guard let rootBar = ofTarget.childNode(withName: "rootBar") as? SKSpriteNode,
               let enemyHpBar = rootBar.childNode(withName: "hpBar")
               else {return}
+        
+        guard let ofTarget = ofTarget as? Enemy else{
+            return
+        }
         
         ofTarget.hp = ofTarget.hp - hitBy.power
         
@@ -127,6 +131,10 @@ class EnemyModel: NSObject{
     }
     
     internal func update(sknode: SKSpriteNode, hpBar: SKNode){
+        guard let sknode = sknode as? Enemy else{
+            return
+        }
+        
         let percentage = sknode.hp/sknode.maxHp
         if (percentage < 0.3){
                 hpBar.run(SKAction.colorize(with: .red, colorBlendFactor: 1, duration: 0.1))

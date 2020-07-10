@@ -8,14 +8,14 @@
 
 import SpriteKit
 
-class RegularEnemy:SKSpriteNode{
+class RegularEnemy:Enemy{
     
     
     private var currency:Currency = Currency(type: .Coin)
     private var velocity = CGVector.zero
     
     private var actionsDead:[SKTexture] = []
-    private var enemy_regular_node:SKSpriteNode?
+    private var enemy_regular_node:Enemy?
     
     private var remaining = 5
     
@@ -38,7 +38,7 @@ class RegularEnemy:SKSpriteNode{
         currency  = Currency(type: .Coin)
         
         actionsDead = global.getTextures(textures: .Puff_Animation)
-        enemy_regular_node = SKSpriteNode()
+        enemy_regular_node = Enemy()
         enemy_regular_node!.size = self.size
         enemy_regular_node!.texture = global.getMainTexture(main: .Enemy_1)
         
@@ -69,14 +69,14 @@ class RegularEnemy:SKSpriteNode{
         for i in 0..<3{
             
             if i == 0 {
-                let node = enemy_regular_node.copy() as! SKSpriteNode
+                let node = enemy_regular_node.copy() as! Enemy
                 self.addChild(node)
                 continue
             }
             else{
-                let lnode = enemy_regular_node.copy() as! SKSpriteNode
+                let lnode = enemy_regular_node.copy() as! Enemy
                 lnode.position.x = CGFloat(-i)*minionSize.width
-                let rnode = enemy_regular_node.copy() as! SKSpriteNode
+                let rnode = enemy_regular_node.copy() as! Enemy
                 rnode.position.x = CGFloat(i)*minionSize.width
                 self.addChild(lnode)
                 self.addChild(rnode)
@@ -87,48 +87,39 @@ class RegularEnemy:SKSpriteNode{
     
     private func setMinions(){
         
-        func modifyHP(sknode: SKSpriteNode, multiplier: CGFloat, newTexture: SKTexture){
+        func modifyHP(sknode: Enemy, multiplier: CGFloat){
             sknode.hp = self.maxHp * multiplier
             sknode.maxHp = self.maxHp * multiplier
-            sknode.texture = newTexture
         }
         
         for enemy in self.children {
             
-            let x = randomInt(min: 1, max: 7)
-            let enemySK = enemy as! SKSpriteNode
-            if x == 1{
-                modifyHP(sknode: enemySK, multiplier: 1.0, newTexture: global.getMainTexture(main: .Enemy_1))
+            let x = randomInt(min: 1, max: 100)
+            let enemySK = enemy as! Enemy
+            
+            if x < 5{
+                enemySK.size = CGSize(width: screenSize.width * 0.169, height: screenSize.height * 0.1005)
+                enemy.run(SKAction.repeatForever(SKAction.animate(with: global.getTextures(textures: .Regular_Bluer_Sprites), timePerFrame: 0.07)))
+                modifyHP(sknode: enemySK, multiplier: 2.0)
             }
-            else if x == 2 {
-                modifyHP(sknode: enemySK, multiplier: 1.05, newTexture: global.getMainTexture(main: .Enemy_2))
+            else if x >= 5 && x < 20 {
+                enemySK.size = CGSize(width: screenSize.width * 0.208, height: screenSize.height * 0.115)
+                enemySK.run(SKAction.repeatForever(SKAction.animate(with: global.getTextures(textures: .Regular_Grenner_Sprites), timePerFrame: 0.07)))
+                modifyHP(sknode: enemySK, multiplier: 1.5)
             }
-            else if x == 3 {
-                modifyHP(sknode: enemySK, multiplier: 1.1, newTexture: global.getMainTexture(main: .Enemy_3))
+            else if x >= 20 && x < 40 {
+                enemySK.size = CGSize(width: screenSize.width * 0.164, height: screenSize.height * 0.1)
+                enemySK.run(SKAction.repeatForever(SKAction.animate(with: global.getTextures(textures: .Regular_Purpler_Sprites), timePerFrame: 0.07)))
+                modifyHP(sknode: enemySK, multiplier: 1.3)
             }
-            else if x == 4 {
-                modifyHP(sknode: enemySK, multiplier: 1.12, newTexture: global.getMainTexture(main: .Enemy_4))
+            else {
+                enemySK.size = CGSize(width: screenSize.width * 0.1667, height: screenSize.height * 0.096)
+                enemySK.run(SKAction.repeatForever(SKAction.animate(with: global.getTextures(textures: .Regular_Redder_Sprites), timePerFrame: 0.07)))
             }
-            else if x == 5 {
-                modifyHP(sknode: enemySK, multiplier: 1.13, newTexture: global.getMainTexture(main: .Enemy_5))
-            }
-            else if x == 6 {
-                modifyHP(sknode: enemySK, multiplier: 1.14, newTexture: global.getMainTexture(main: .Enemy_6))
-            }
-            else{
-                modifyHP(sknode: enemySK, multiplier: 1.15, newTexture: global.getMainTexture(main: .Enemy_7))
-            }
+            
         }
         self.run(SKAction.sequence([SKAction.wait(forDuration: 5), SKAction.removeFromParent()]))
     }
-    
-//    internal func raiseBaseHp(byValue val: CGFloat){
-//        self.maxHp = maxHp + val
-//    }
-//    
-//    internal func raiseVelocity(byValue val: CGFloat){
-//        velocity.dy -= val
-//    }
     
     internal func defeated(sknode:SKSpriteNode){
         sknode.physicsBody?.categoryBitMask = PhysicsCategory.None

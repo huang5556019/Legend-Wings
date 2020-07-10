@@ -28,9 +28,6 @@ class Toon{
         print ("Toon class has been deinitiated.")
     }
     
-   // private var description:[String]
-    private var width:CGFloat
-    private var height:CGFloat
     private var size:CGSize
     private var node:SKSpriteNode
     private var bullet:Projectile?
@@ -38,27 +35,45 @@ class Toon{
     private var experience:CGFloat = 0
     private var title:String = "None"
     private var level:Int = 1 // For future use
-// private var bulletLevel:Int = 1
     
     // Initialize
     private var charType:Character
     
     init(char:Character){
         
-        // Create PNG with height = 130 For good quality
         var localMainTexture:SKTexture!
         var localWingTexture:SKTexture!
+        var cw:CGFloat!
+        var ch:CGFloat!
+        var ww:CGFloat!
+        var wh:CGFloat!
         switch char {
         case .Alpha:
+            cw = screenSize.width * 0.150
+            ch = screenSize.height * 0.177
+            ww = screenSize.width * 0.186
+            wh = screenSize.height * 0.081
             localMainTexture = global.getMainTexture(main: .Character_Alpha)
             localWingTexture = global.getMainTexture(main: .Character_Alpha_Wing)
         case .Beta:
+            cw = screenSize.width * 0.1135
+            ch = screenSize.height * 0.175
+            ww = screenSize.width * 0.191
+            wh = screenSize.height * 0.083
             localMainTexture = global.getMainTexture(main: .Character_Beta)
             localWingTexture = global.getMainTexture(main: .Character_Beta_Wing)
         case .Celta:
+            cw = screenSize.width * 0.135
+            ch = screenSize.height * 0.163
+            ww = screenSize.width * 0.179
+            wh = screenSize.height * 0.091
             localMainTexture = global.getMainTexture(main: .Character_Celta)
             localWingTexture = global.getMainTexture(main: .Character_Celta_Wing)
         case .Delta:
+            cw = screenSize.width * 0.121
+            ch = screenSize.height * 0.1725
+            ww = screenSize.width * 0.140
+            wh = screenSize.height * 0.114
             localMainTexture = global.getMainTexture(main: .Character_Delta)
             localWingTexture = global.getMainTexture(main: .Character_Delta_Wing)
         default:
@@ -68,32 +83,30 @@ class Toon{
         }
         
         self.charType = char
-        self.size = localMainTexture.size()
-        self.width = size.width //65 //
-        self.height = size.height //130 //
+        self.size = CGSize(width: cw, height: ch)
 
         node = SKSpriteNode(texture: localMainTexture)
         node.name = "toon"
         node.position = CGPoint(x: screenSize.width/2, y: 100)
-        node.size = CGSize(width: width, height: height)
+        node.size = self.size
         node.run(SKAction.scale(to: 0.7, duration: 0.0))
         
         let l_wing = SKSpriteNode()
         l_wing.texture = localWingTexture
-        l_wing.size = localWingTexture.size()
+        l_wing.size = CGSize(width: ww, height: wh)
         l_wing.anchorPoint = CGPoint(x: 1.0, y: 0.5)
         l_wing.position = CGPoint(x: -2.0, y: 20.0)
-        l_wing.run(SKAction.repeatForever(SKAction.sequence([SKAction.resize(toWidth: 40, duration: 0.3), SKAction.resize(toWidth: 77, duration: 0.15)])))
+        l_wing.run(SKAction.repeatForever(SKAction.sequence([SKAction.resize(toWidth: screenSize.width * 0.097, duration: 0.3), SKAction.resize(toWidth: screenSize.height * 0.105, duration: 0.15)])))
         
         node.addChild(l_wing)
         
         let r_wing = SKSpriteNode()
         r_wing.texture = localWingTexture
-        r_wing.size = localWingTexture.size()
+        r_wing.size = CGSize(width: ww, height: wh)
         r_wing.anchorPoint = CGPoint(x: 1.0, y: 0.5)
         r_wing.position = CGPoint(x:2.0, y: 20.0)
         r_wing.xScale = -1.0
-        r_wing.run(SKAction.repeatForever(SKAction.sequence([SKAction.resize(toWidth: 40, duration: 0.3), SKAction.resize(toWidth: 77, duration: 0.15)])))
+        r_wing.run(SKAction.repeatForever(SKAction.sequence([SKAction.resize(toWidth: screenSize.width * 0.097, duration: 0.3), SKAction.resize(toWidth: screenSize.height * 0.105, duration: 0.15)])))
         
         node.addChild(r_wing)
     }
@@ -104,7 +117,6 @@ class Toon{
         self.experience = infoDict.value(forKey: "Experience") as! CGFloat
         self.description = infoDict.value(forKey: "Description") as! [String]
         self.title = infoDict.value(forKey: "Title") as! String
-        
         let bulletLevel = infoDict.value(forKey: "BulletLevel") as! Int
         
         bullet = Projectile(posX: node.position.x, posY: node.position.y, char: self.charType, bulletLevel: bulletLevel)
@@ -116,14 +128,11 @@ class Toon{
         node.physicsBody!.categoryBitMask = PhysicsCategory.Player
         node.physicsBody!.contactTestBitMask = PhysicsCategory.Enemy
         
-        
         // Apply Magnetic Field
         let mfield = SKFieldNode.radialGravityField()
         mfield.region = SKRegion(radius: Float(node.size.width))
-        print(node.size.width/2)
-        mfield.strength = 5.0
+        mfield.strength = 120.0
         mfield.categoryBitMask = GravityCategory.Player
-        mfield.falloff = 4.0
         node.addChild(mfield)
         
     }
